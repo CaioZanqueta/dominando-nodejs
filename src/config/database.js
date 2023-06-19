@@ -2,8 +2,8 @@ module.exports = {
   dialect: 'postgres',
   host: 'localhost',
   username: 'postgres',
-  password: 'secret',
-  database: 'localhost',
+  password: 'pgadm123',
+  database: 'pg-dominando-nodejs',
   define: {
     timestamp: true,
     underscored: true,
