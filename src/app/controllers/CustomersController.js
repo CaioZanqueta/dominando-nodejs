@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import Customer from '../models/Customer';
 
 const customers = [
@@ -9,6 +10,49 @@ const customers = [
 class CustomersController {
   // Listagem dos Customers
   async index(req, res) {
+    const {
+      name,
+      email,
+      status,
+      createdBefore,
+      createdAfter,
+      updatedBefore,
+      updatedAfter,
+      sort,
+    } = rew.query;
+
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 25;
+
+    let where = {};
+
+    if (name) {
+      where = {
+        ...where,
+        name: {
+          [Op.iLike]: name,
+        },
+      };
+    }
+
+    if (email) {
+      where = {
+        ...where,
+        email: {
+          [Op.iLike]: email,
+        },
+      };
+    }
+
+    if (status) {
+      where = {
+        ...where,
+        status: {
+          [Op.in]: status,
+        },
+      };
+    }
+
     const data = await Customer.findAll({
       limit: 1000,
     });
