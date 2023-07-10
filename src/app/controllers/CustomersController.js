@@ -1,5 +1,8 @@
 import { Op } from 'sequelize';
+import { parseISO } from 'date-fns';
+
 import Customer from '../models/Customer';
+import Contact from '../models/Contact';
 
 const customers = [
   { id: 1, name: 'Dev Samurai', site: 'http://devsamurai.com.br' },
@@ -19,12 +22,13 @@ class CustomersController {
       updatedBefore,
       updatedAfter,
       sort,
-    } = rew.query;
+    } = req.query;
 
     const page = req.query.page || 1;
     const limit = req.query.limit || 25;
 
     let where = {};
+    let order = [];
 
     if (name) {
       where = {
@@ -48,30 +52,79 @@ class CustomersController {
       where = {
         ...where,
         status: {
-          [Op.in]: status,
+          [Op.in]: status.split(',').map((item) => item.toUpperCase()),
         },
       };
     }
 
+    if (createdBefore) {
+      where = {
+        ...where,
+        createdAt: {
+          [Op.gte]: parseISO(createdBefore),
+        },
+      };
+    }
+
+    if (createdAfter) {
+      where = {
+        ...where,
+        createdAt: {
+          [Op.lte]: parseISO(createdAfter),
+        },
+      };
+    }
+
+    if (updatedBefore) {
+      where = {
+        ...where,
+        updatedAt: {
+          [Op.gte]: parseISO(updatedBefore),
+        },
+      };
+    }
+
+    if (updatedAfter) {
+      where = {
+        ...where,
+        updatedAt: {
+          [Op.lte]: parseISO(updatedAfter),
+        },
+      };
+    }
+
+    if (sort) {
+      order = sort.split(',').map((item) => item.split(':'));
+    }
+
     const data = await Customer.findAll({
-      limit: 1000,
+      where,
+      include: [
+        {
+          model: Contact,
+          attributes: ['id', 'status'],
+        },
+      ],
+      order,
+      limit,
+      offset: limit * page - limit,
     });
     return res.json(data);
   }
 
   // Recupera um Customers
-  show(req, res) {
-    const id = parseInt(req.params.id, 10);
-    const customer = customers.find((item) => item.id === id);
-    const status = customer ? 200 : 404;
+  async show(req, res) {
+    const customer = await Customer.findByPk(req.params.id);
 
-    console.warn('GET :: /customers/:id', customer);
+    if (!customer) {
+      return res.status(404).json();
+    }
 
-    return res.status(status).json(customer);
+    return res.json(customer);
   }
 
   // Cria um novo Customer
-  create(req, res) {
+  async create(req, res) {
     const { name, site } = req.body;
     const id = customers[customers.length - 1].id + 1;
 
@@ -82,7 +135,7 @@ class CustomersController {
   }
 
   // Atualiza um Customer
-  update(req, res) {
+  async update(req, res) {
     const id = parseInt(req.params.id, 10);
     const { name, site } = req.body;
 
@@ -97,7 +150,7 @@ class CustomersController {
   }
 
   // Exclui um Customer
-  destroy(req, res) {
+  async destroy(req, res) {
     const id = parseInt(req.params.id, 10);
 
     const index = customers.findIndex((item) => item.id === id);
