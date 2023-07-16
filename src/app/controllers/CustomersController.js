@@ -1,13 +1,11 @@
 import * as Yup from 'yup';
 import { Op } from 'sequelize';
 import { parseISO } from 'date-fns';
-import * as Yup from 'yup';
 
 import Customer from '../models/Customer';
 import Contact from '../models/Contact';
 
 class CustomersController {
-  // Listagem dos Customers
   async index(req, res) {
     const {
       name,
@@ -105,10 +103,10 @@ class CustomersController {
       limit,
       offset: limit * page - limit,
     });
+
     return res.json(data);
   }
 
-  // Recupera um Customers
   async show(req, res) {
     const customer = await Customer.findByPk(req.params.id);
 
@@ -119,10 +117,7 @@ class CustomersController {
     return res.json(customer);
   }
 
-  // Cria um novo Customer
   async create(req, res) {
-    const customer = await Customer.create(req.body);
-
     const schema = Yup.object().shape({
       name: Yup.string().required(),
       email: Yup.string().email().required(),
@@ -130,14 +125,14 @@ class CustomersController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Error on validate schema' });
+      return res.status(400).json({ error: 'Error on validate schema.' });
     }
 
-    return res.status(201).json(customer);
+    const customer = await Customer.create(req.body);
+
     return res.status(201).json(customer);
   }
 
-  // Atualiza um Customer
   async update(req, res) {
     const schema = Yup.object().shape({
       name: Yup.string(),
@@ -146,14 +141,11 @@ class CustomersController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Error on validate schema' });
+      return res.status(400).json({ error: 'Error on validate schema.' });
     }
 
     const customer = await Customer.findByPk(req.params.id);
-    const customer = await Customer.findByPk(req.params.id);
 
-    if (!customer) {
-      return res.status(404).json();
     if (!customer) {
       return res.status(404).json();
     }
@@ -163,20 +155,13 @@ class CustomersController {
     return res.json(customer);
   }
 
-  // Exclui um Customer
   async destroy(req, res) {
     const customer = await Customer.findByPk(req.params.id);
-    const customer = await Customer.findByPk(req.params.id);
 
-    if (!customer) {
-      return res.status(404).json();
     if (!customer) {
       return res.status(404).json();
     }
 
-    await customer.destroy();
-
-    return res.json();
     await customer.destroy();
 
     return res.json();
