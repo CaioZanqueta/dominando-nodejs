@@ -1,3 +1,4 @@
+import * as Yup from 'yup';
 import { Op } from 'sequelize';
 import { parseISO } from 'date-fns';
 import * as Yup from 'yup';
@@ -133,6 +134,7 @@ class CustomersController {
     }
 
     return res.status(201).json(customer);
+    return res.status(201).json(customer);
   }
 
   // Atualiza um Customer
@@ -148,7 +150,10 @@ class CustomersController {
     }
 
     const customer = await Customer.findByPk(req.params.id);
+    const customer = await Customer.findByPk(req.params.id);
 
+    if (!customer) {
+      return res.status(404).json();
     if (!customer) {
       return res.status(404).json();
     }
@@ -161,11 +166,17 @@ class CustomersController {
   // Exclui um Customer
   async destroy(req, res) {
     const customer = await Customer.findByPk(req.params.id);
+    const customer = await Customer.findByPk(req.params.id);
 
+    if (!customer) {
+      return res.status(404).json();
     if (!customer) {
       return res.status(404).json();
     }
 
+    await customer.destroy();
+
+    return res.json();
     await customer.destroy();
 
     return res.json();
