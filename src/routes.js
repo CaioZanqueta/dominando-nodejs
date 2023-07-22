@@ -1,5 +1,6 @@
 import { Router } from 'express';
 
+import sessions from './app/controllers/SessionsController';
 import customers from './app/controllers/CustomersController';
 import contacts from './app/controllers/ContactsController';
 import users from './app/controllers/UsersController';
