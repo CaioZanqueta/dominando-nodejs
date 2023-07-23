@@ -88,6 +88,8 @@ class UsersController {
       offset: limit * page - limit,
     });
 
+    console.log({ userId: req.userId });
+
     return res.json(data);
   }
 
