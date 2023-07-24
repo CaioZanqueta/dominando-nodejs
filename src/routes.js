@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import multer from 'multer';
+import multerConfig from './config/multer';
 
 import auth from './app/middlewares/auth';
 
@@ -8,6 +10,7 @@ import contacts from './app/controllers/ContactsController';
 import users from './app/controllers/UsersController';
 
 const routes = new Router();
+const upload = multer(multerConfig);
 
 // Sessions Routes
 routes.post('/sessions', sessions.create);
@@ -35,5 +38,10 @@ routes.get('/users/:id', users.show);
 routes.post('/users', users.create);
 routes.put('/users/:id', users.update);
 routes.delete('/users/:id', users.destroy);
+
+// Files Routes
+routes.post('/files', upload.single('file'), (req, res) =>
+  res.json({ response: 'OK' })
+);
 
 export default routes;
