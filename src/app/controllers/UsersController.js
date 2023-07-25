@@ -94,7 +94,9 @@ class UsersController {
   }
 
   async show(req, res) {
-    const user = await User.findByPk(req.params.id);
+    const user = await User.findByPk(req.params.id, {
+      attributes: { exclude: ['password', 'password_hash'] },
+    });
 
     if (!user) {
       return res.status(404).json();
