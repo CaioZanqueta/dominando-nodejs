@@ -6,6 +6,7 @@ class FilesController {
 
     const file = await File.create({ name, path });
 
+    console.log(file);
     res.json(file);
   }
 }
