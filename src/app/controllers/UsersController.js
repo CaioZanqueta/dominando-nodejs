@@ -4,6 +4,9 @@ import { parseISO } from 'date-fns';
 
 import User from '../models/User';
 
+import Queue from '../../lib/Queue';
+import WelcomeEmailJob from '../jobs/WelcomeEmailJob';
+
 class UsersController {
   async index(req, res) {
     const {
@@ -102,9 +105,9 @@ class UsersController {
       return res.status(404).json();
     }
 
-    const { id, name, email, createdAt, updatedAt } = user;
+    const { id, name, email, file_id, createdAt, updatedAt } = user;
 
-    return res.json({ id, name, email, createdAt, updatedAt });
+    return res.json({ id, name, email, file_id, createdAt, updatedAt });
   }
 
   async create(req, res) {
@@ -123,6 +126,8 @@ class UsersController {
 
     const { id, name, email, file_id, createdAt, updatedAt } =
       await User.create(req.body);
+
+    await Queue.add(WelcomeEmailJob.key, { name, email });
 
     return res
       .status(201)
